@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 
 mapfile -t Mylist < <( awk -F: '$3>=1000 && $1 != "nobody" {print $1}' /etc/passwd)
 #for item in "${Mylist[@]}"; do
@@ -114,13 +114,33 @@ print_process_info()
     top -n 1 -b | head -n 35
 }
 
+check_cpu_usage()
+{
+    echo "Alert System"
+    #(top -n1 -b | grep -E '^ *PID' )
+    top_process_perc=$(top -n 1 -b | grep -E '^ * [0-9]+' | head -n 1 | awk '{print $9}')
+    top_process_name=$(top -n 1 -b | grep -E '^ * [0-9]+' | head -n 1 | awk '{print $12}')
+    if (( $(echo "${top_process_perc} > ${CPU_THRESHOLD}" | bc -l) )); then
+        echo "We have a process Exceeded the Threshold"
+        echo $top_process_name
+        echo $top_process_perc
+        #echo $CPU_THRESHOLD
+    fi
+    
+    
+    #cpu_usage=$(ps -p "$top_process" -o %cpu=)
+    #echo "The highest cpu usage is:"
+    #echo $top_process
+}
+
 while true; do
     echo "Real Time Process Monitor"
     echo "----------------------------------"
     print_process_info
+    check_cpu_usage
     echo ""
     echo ""
-    if read -t "$interval" -p "Press e to enter Interaction menu or x to exit:" input;then
+    if read -t "$UPDATE_INTERVAL" -p "Press e to enter Interaction menu or x to exit:" input;then
         if [[ "$input" == "e" ]]; then
             Interactive_menu
         #fi
