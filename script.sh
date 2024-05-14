@@ -1,5 +1,10 @@
 #!/bin/bash 
 
+if [ -f process_monitor_config ]; then
+    source process_monitor_config
+fi
+
+## Get list of the usernames in the system
 mapfile -t Mylist < <( awk -F: '$3>=1000 && $1 != "nobody" {print $1}' /etc/passwd)
 #for item in "${Mylist[@]}"; do
 #    echo "$item"
@@ -7,7 +12,7 @@ mapfile -t Mylist < <( awk -F: '$3>=1000 && $1 != "nobody" {print $1}' /etc/pass
 declare -i x=1
 declare -i y=1
 declare -i interval=5
-options=("list running process" "process Info" "Kill" "Process Statistics" "Real time Monitoring" "search and filter" "Quit")
+options=("list running process" "process Info" "Kill" "Process Statistics"  "search and filter" "Quit")
 options2=("Process Name" "Username" "Resource usage" "Return to main menu")
 
 
@@ -116,6 +121,7 @@ print_process_info()
 
 check_cpu_usage()
 {
+    echo ""
     echo "Alert System"
     #(top -n1 -b | grep -E '^ *PID' )
     top_process_perc=$(top -n 1 -b | grep -E '^ * [0-9]+' | head -n 1 | awk '{print $9}')
@@ -125,6 +131,8 @@ check_cpu_usage()
         echo $top_process_name
         echo $top_process_perc
         #echo $CPU_THRESHOLD
+    else
+        echo "There is no issue in the system"
     fi
     
     
